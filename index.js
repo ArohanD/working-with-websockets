@@ -6,17 +6,25 @@ const server = express()
 .use((req, res) => res.sendFile('./index.html', { root: __dirname }))
 .listen(PORT, () => console.log(`Listening on ${PORT}`));
 
-const wss = new WebSocket.Server({ server });
+const wsServer = new WebSocket.Server({ server });
 
-wss.on('connection', function connection(ws) {
+const messages = ['a', 'b', 'c'];
+wsServer.on('connection', function connection(ws) {
+
+  ws.send(JSON.stringify(messages))
+
   ws.on('message', function incoming(message) {
     console.log('received: %s', message);
-    ws.send('something back');
+
+    messages.push(message)
+
+    wsServer.clients.forEach((client) => {
+      client.send(JSON.stringify(message));
+    });
   });
 });
 
+
 setInterval(() => {
-  wss.clients.forEach((client) => {
-    client.send(`data sent at ${new Date().toTimeString()}`);
-  });
-}, 1000);
+  console.log('messages:', messages)
+}, 2000);
