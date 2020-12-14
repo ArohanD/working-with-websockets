@@ -13,6 +13,10 @@ wss.on('connection', function connection(ws) {
     console.log('received: %s', message);
     ws.send('something back');
   });
- 
-  //ws.send('something');
 });
+
+setInterval(() => {
+  wss.clients.forEach((client) => {
+    client.send(`data sent at ${new Date().toTimeString()}`);
+  });
+}, 1000);
